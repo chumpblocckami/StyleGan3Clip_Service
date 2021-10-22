@@ -6,11 +6,11 @@ WORKDIR app
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y curl
 RUN apt-get install unzip
 RUN apt-get -y install git
-RUN apt-get -y install python3
+RUN apt-get -y install python3.8
 RUN apt-get -y install python3-pip
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+#COPY requirements.txt requirements.txt
+#RUN pip3 install -r requirements.txt
 
 RUN pip3 install --upgrade torch==1.9.1+cu111 torchvision==0.10.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html
 RUN git clone https://github.com/NVlabs/stylegan3

@@ -48,10 +48,8 @@ The attributes to enter are:
     <td>-</td>
     <td><img src="documentation/FFHQ_start.jpg" alt="start"></td>
     <td><img src="documentation/FFHQ_end.jpg" alt="end"></td>
-    <td>
-        <video width="320" height="240" controls>
-            <source src="documentation/stylegan.mp4" type="video/mp4">
-        </video>    
+    <td> 
+        <img src="documentation/stylegan.gif" alt="transition">
     </td>
 </tr>
 </table>
