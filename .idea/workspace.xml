@@ -3,11 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d06ed4f2-50d3-49bc-91b9-293bfceae9d6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Readme.Md" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.Md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/stylegan.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ml/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/ml/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ml/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ml/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
