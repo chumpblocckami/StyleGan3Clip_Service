@@ -9,7 +9,7 @@ A gentle introduction to StyleGan is avaiable [here](https://machinelearningmast
 
 Make sure to have [docker](https://docs.docker.com/get-docker/) installed and an accessible GPU.
 
-> git clone https://www.github.com/StyleGan3Clip_Service
+> git clone https://github.com/chumpblocckami/StyleGan3Clip_Service.git
 > 
 > cd StyleGan3Clip_Service
 > 
