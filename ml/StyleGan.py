@@ -10,26 +10,35 @@ import torchvision.transforms.functional as TF
 #from IPython.display import display
 from PIL import Image
 from torchvision.transforms import Compose, Resize
-from tqdm.notebook import tqdm
+from tqdm import tqdm
+import logging 
+import utils 
 
+logging.basicConfig(filename='./data/stylegan.log',
+                            filemode='w',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.INFO)
 
 class StyleGan():
     def __init__(self, ):
 
+        self.logger = logging.getLogger('StyleGan3')
         self.load_env()
-
         self.device = self.load_device()
         self.tf = Compose([Resize(224), lambda x: torch.clamp((x + 1) / 2, min=0, max=1), ])
-
+        self.download_models()
         self.timestring = None
+        self.clip = utils.CLIP()
 
     def load_env(self):
         sys.path.append('./CLIP')
         sys.path.append('./stylegan3')
+        self.logger.info('Added CLIP and Stylegan3 to path.')
 
     def load_device(self):
         device = torch.device('cuda:0')
-        print('Using device:', device, file=sys.stderr)
+        self.logger.info(f'Using device: {device}')
         return device
 
     def download_models(self):
@@ -40,20 +49,30 @@ class StyleGan():
             "AFHQv2": "stylegan3-t-afhqv2-512x512.pkl"
         }
         for model in model_name.items():
-            print("Downloading "+model[0])
-            network_url = base_url + model[1]
+            if model_name[model[0]] not in os.listdir('./models'):
+                network_url = base_url + model[1]
+                utils.fetch_model(network_url)
+                
+                #with open(utils.fetch_model(network_url), 'rb') as fp:
+                #    G = pickle.load(fp)['G_ema'].to(self.device)
+                #with open("./data/models/"+str(model[0]),"wb") as handle:
+                #    pickle.dump(G, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                self.logger.info(f'Model {model[0]} correctly downloaded.')
+            else:
+                self.logger.info(f'Model {model[0]} were previously downloaded.')
 
-            with open(fetch_model(network_url), 'rb') as fp:
-                G = pickle.load(fp)['G_ema'].to(self.device)
-            with open("./data/models/"+str(model[0]),"wb") as handle:
-                pickle.dump(G, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    def choose_models(self,model):
+    def choose_model(self,model):  
+        model_name = {
+            "FFHQ": "stylegan3-t-ffhqu-1024x1024.pkl",
+            "MetFaces": "stylegan3-r-metfacesu-1024x1024.pkl",
+            "AFHQv2": "stylegan3-t-afhqv2-512x512.pkl"
+        }
+        self.logger.info(model+ model_name[model]+str(os.listdir("./models/"))+"./models/"+model_name[model])
         try:
-            with open("./data/models/"+model+".pkl", 'rb') as fp:
+            with open("./models/"+model_name[model], 'rb') as fp:
                 G = pickle.load(fp)['G_ema'].to(self.device)
-        except:
-            print("Error loading the model")
+        except Exception as loadError:
+            self.logger.error("Error loading the model"+str(loadError))
             return None, None
 
         zs = torch.randn([10000, G.mapping.z_dim], device=self.device)
@@ -70,8 +89,8 @@ class StyleGan():
                 q = (self.G.mapping(torch.randn([4, self.G.mapping.z_dim], device=self.device), None,
                                     truncation_psi=0.7) - self.G.mapping.w_avg) / self.w_stds
                 images = self.G.synthesis(q * self.w_stds + self.G.mapping.w_avg)
-                embeds = embed_image(images.add(1).div(2))
-                loss = spherical_dist_loss(embeds, target).mean(0)
+                embeds = utils.embed_image(images.add(1).div(2))
+                loss = utils.spherical_dist_loss(embeds, self.target).mean(0)
                 i = torch.argmin(loss)
                 qs.append(q[i])
                 losses.append(loss[i])
@@ -90,8 +109,8 @@ class StyleGan():
             opt.zero_grad()
             w = q * self.w_stds
             image = self.G.synthesis(w + self.G.mapping.w_avg, noise_mode='const')
-            embed = embed_image(image.add(1).div(2))
-            loss = spherical_dist_loss(embed, target).mean()
+            embed = utils.embed_image(image.add(1).div(2))
+            loss = utils.spherical_dist_loss(embed, self.target).mean()
             loss.backward()
             opt.step()
             loop.set_postfix(loss=loss.item(), q_magnitude=q.std().item())
@@ -144,6 +163,7 @@ class StyleGan():
         self.seed = seed
         self.path_2_save = path_2_save
         self.G, self.w_stds = self.choose_model(model)
+        self.target = self.clip.embed_text(text)
 
         self.timestring = time.strftime('%Y%m%d%H%M%S')
         self.run(self.timestring)

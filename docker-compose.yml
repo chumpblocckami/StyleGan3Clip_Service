@@ -1,1 +1,35 @@
-version: "3.3"services:  frontend:    build:      context: frontend/    environment:      - PYTHON_ENV=production      - TZ=Europe/Rome    ports:      - "5000:5000"  ml:    build:      context: ml/    environment:      - PYTHON_ENV=production      - TZ=Europe/Rome    volumes:      - "./data:/app/data"    ports:      - "8000:8000"
+version: "3.3"
+
+services:
+  ml:
+    build:
+      context: ml/
+    environment:
+      - PYTHON_ENV=production
+      - NVIDIA_VISIBLE_DEVICES=all
+      - TZ=Europe/Rome
+    volumes:
+      - "./data:/app/data"
+#      - "frontend/images:/app/images"
+    ports:
+      - "8000:8000"
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - count: 1
+              capabilities: [gpu]
+
+  frontend:
+    build:
+      context: frontend/
+    environment:
+      - PYTHON_ENV=production
+      - TZ=Europe/Rome
+    ports:
+      - "5000:5000"
+#    volumes:
+#      - "frontend/images:/app/images"
+    depends_on:
+      - ml
