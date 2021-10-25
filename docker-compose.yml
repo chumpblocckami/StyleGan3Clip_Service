@@ -2,6 +2,7 @@ version: "3.3"
 
 services:
   ml:
+  privileged: true
     build:
       context: ml/
     environment:
